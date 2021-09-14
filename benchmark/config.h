@@ -7,7 +7,8 @@
 
 const int max_thread_num = 36;
 
-inline const char *nvm_dir = "/mnt/pmem0/jzc/";
+//inline const char *nvm_dir = "/mnt/pmem0/jzc/";
+extern const char* nvm_dir;
 
 enum IndexType { PART, FAST_FAIR, SKIPLIST, _IndexTypeNumber };
 
@@ -117,7 +118,7 @@ static void parse_arguments(int argc, char *argv[], Config &state) {
     state.val_length = 8;
     state.share_memory = true;
     state.duration = 1;
-    state.benchmark = SCAN_BENCH;
+    state.benchmark = YCSB_A;
     state.workload = RANDOM;
     state.skewness = 0.99;
     state.scan_length = 100;

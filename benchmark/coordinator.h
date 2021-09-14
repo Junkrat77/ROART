@@ -152,7 +152,7 @@ template <typename K, typename V, int size> class Coordinator {
         char value[val_len + 5];
         memset(value, 'a', val_len);
         value[val_len] = 0;
-        maxkey->Init("z", 1, value, val_len);
+        maxkey->Init((char*)"z", 1, value, val_len);
 
         char scan_value[val_len + 5];
 
@@ -881,8 +881,8 @@ template <typename K, typename V, int size> class Coordinator {
             printf("[COORDINATOR]\tFinish benchmark..\n");
             printf("[RESULT]\ttotal throughput: %.3lf Mtps, %d threads, %s, "
                    "%s, benchmark %d, zipfian %.2lf, rr is %d, read latency is "
-                   "%.3lf ns， read op count is %d, help count is %d, "
-                   "writecount is %d\n",
+                   "%.3lf ns， read op count is %lld, help count is %lld, "
+                   "writecount is %lld\n",
                    (double)final_result.throughput / 1000000.0 / conf.duration,
                    conf.num_threads, (conf.type == PART) ? "ART" : "FF",
                    (conf.key_type == Integer) ? "Int" : "Str", conf.benchmark,

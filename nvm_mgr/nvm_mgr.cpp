@@ -79,7 +79,6 @@ NVMMgr::NVMMgr() {
         meta_data->threads = 0;
         meta_data->free_bit_offset = 0;
         meta_data->generation_version = 0;
-
         flush_data((void *)meta_data, PGSIZE);
         printf("[NVM MGR]\tinitialize nvm file's head\n");
     } else {

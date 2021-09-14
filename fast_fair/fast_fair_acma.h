@@ -2088,7 +2088,7 @@ void btree::btree_delete(char *key) {
             //            btree_delete(key);
         }
     } else {
-        printf("not found the key to delete %lu\n", key);
+        printf("not found the key to delete %lu\n", (long unsigned int)key);
     }
 }
 
