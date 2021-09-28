@@ -66,7 +66,7 @@ NVMMgr::NVMMgr() {
         printf("[NVM MGR]\tmmap failed %p \n", addr);
         exit(0);
     }
-    printf("[NVM MGR]\tmmap successfully\n");
+    printf("[NVM MGR]\tmmap successfully %p \n", addr);
 
     // initialize meta data
     meta_data = static_cast<Head *>(addr);
@@ -79,7 +79,7 @@ NVMMgr::NVMMgr() {
         meta_data->threads = 0;
         meta_data->free_bit_offset = 0;
         meta_data->generation_version = 0;
-        flush_data((void *)meta_data, PGSIZE);
+        flush_data((void *)meta_data, metadata_size);
         printf("[NVM MGR]\tinitialize nvm file's head\n");
     } else {
         meta_data->generation_version++;

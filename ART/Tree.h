@@ -70,6 +70,9 @@ class Tree {
 
     OperationResults update(const Key *k) const;
 
+    bool prefixScan(const Key *prefix, const Key * continueKey, Leaf* result[], std::size_t resultSize, std::size_t &resultsFound) const ;
+
+	
     bool lookupRange(const Key *start, const Key *end, const Key *continueKey,
                      Leaf *result[], std::size_t resultLen,
                      std::size_t &resultCount) const;

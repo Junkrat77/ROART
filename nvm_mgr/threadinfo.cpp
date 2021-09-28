@@ -183,7 +183,8 @@ thread_info::thread_info() {
     //    node48_free_list = new PMFreeList(pmblock);
     //    node256_free_list = new PMFreeList(pmblock);
     //    leaf_free_list = new PMFreeList(pmblock);
-
+    
+       printf("create thread_info\n");	
     free_list = new buddy_allocator(pmblock);
 
     md = new GCMetaData();
@@ -406,11 +407,12 @@ uint64_t SummarizeGCEpoch() {
     assert(ti_list_head);
 
     // Use the first metadata's epoch as min and update it on the fly
-    thread_info *tmp = ti_list_head;
+    volatile thread_info *tmp = ti_list_head;
     uint64_t min_epoch = tmp->md->last_active_epoch;
 
     // This might not be executed if there is only one thread
     while (tmp->next) {
+	// printf("in SummarizeGCEpoch\n");
         tmp = tmp->next;
         min_epoch = std::min(min_epoch, tmp->md->last_active_epoch);
     }

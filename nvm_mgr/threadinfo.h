@@ -85,7 +85,9 @@ class thread_info {
     void *get_static_log() { return (void *)static_log; }
     int get_thread_id() { return id; }
     inline void JoinEpoch() {
-        md->last_active_epoch = Epoch_Mgr::GetGlobalEpoch();
+	// md->last_active_epoch = 1;
+	// printf("in JoinEpoch!\n"); assert(md!=nullptr);
+	md->last_active_epoch = Epoch_Mgr::GetGlobalEpoch();
     }
 
     inline void LeaveEpoch() {

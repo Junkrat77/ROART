@@ -49,10 +49,11 @@ class NVMMgr {
     static const int max_threads = 64;
 
     static const int PGSIZE = 256 * 1024;                     // 256K
-    static const long long filesize = 1024LL * 1024 * PGSIZE; // 256GB
-
-    static const size_t start_addr = 0x50000000;
-    static const size_t thread_local_start = start_addr + PGSIZE;
+    static const long long filesize = 1024LL * 1024 * 1024 * 180; // 256GB
+    
+    static const size_t metadata_size = 4 * PGSIZE;
+    static const size_t start_addr = 0x10000000;
+    static const size_t thread_local_start = start_addr + metadata_size;
     static const size_t data_block_start =
         thread_local_start + PGSIZE * max_threads;
 

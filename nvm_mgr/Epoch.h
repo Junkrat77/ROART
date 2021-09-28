@@ -73,7 +73,7 @@ class Epoch_Mgr {
 
     inline void IncreaseEpoch() { epoch++; }
 
-    static uint64_t GetGlobalEpoch() { return epoch; }
+    static uint64_t GetGlobalEpoch() { /* printf("in GetGlobalEpoch\n"); */return epoch; }
 
     /*
      * ThreadFunc() - The cleaner thread executes this every GC_INTERVAL ms

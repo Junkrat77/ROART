@@ -135,6 +135,109 @@ Leaf *Tree::allocLeaf(const Key *k) const {
     return newLeaf;
 #endif
 }
+
+
+bool getAllLeaves(N* node, Leaf* result[], std::size_t resultSize, std::size_t&resultsFound) {
+    /* 索引node下所有的叶子节点内容 */
+    if (N::isLeafArray(node)) {
+        auto la = N::getLeafArray(node);
+        std::vector<Leaf *> leaves;
+        auto b = la->bitmap.load();
+        auto i = b[0] ? 0 : 1;
+        while (i < LeafArrayLength) {
+            auto ptr = la->getLeafAt(i);
+            i = b._Find_next(i);
+            // start <= ptr < end
+            leaves.push_back(ptr);
+        }
+        for (auto leaf : leaves) {
+            if (resultsFound == resultSize) {
+                return true;
+            }
+            result[resultsFound] = leaf;
+            resultsFound++;
+        }
+        return true;
+    }
+    std::tuple<uint8_t, N *> children[256];
+    uint32_t childrenCount = 0;
+    N::getChildren(node, 0, 255, children, childrenCount);
+    for (uint32_t i = 0; i < childrenCount; ++i) {
+        const uint8_t k = std::get<0>(children[i]);
+        N *n = std::get<1>(children[i]);
+        getAllLeaves(n, result, resultSize, resultsFound);
+    }
+}
+
+bool Tree::prefixScan(const Key *prefix, const Key * continueKey, Leaf* result[], std::size_t resultSize, std::size_t &resultsFound) const {
+        // enter a new epoch
+    EpochGuard NewEpoch;
+    bool need_restart;
+    int restart_cnt = 0;
+restart:
+    need_restart = false;
+    N *node = root;
+
+    uint32_t level = 0;
+    bool optimisticPrefixMatch = false;
+
+    while (true) {
+#ifdef INSTANT_RESTART
+        node->check_generation();
+#endif
+
+#ifdef CHECK_COUNT
+        int pre = level;
+#endif
+	switch (checkPrefix(node, prefix, level)) { // increases level
+        case CheckPrefixResult::NoMatch:
+            return false;
+        case CheckPrefixResult::OptimisticMatch:
+            optimisticPrefixMatch = true;
+            // fallthrough
+        case CheckPrefixResult::Match: {
+            if (prefix->getKeyLen() <= level) {
+                return false;
+            }
+            node = N::getChild(prefix->fkey[level], node);
+
+#ifdef CHECK_COUNT
+            checkcount += std::min(4, (int)level - pre);
+#endif
+
+            if (node == nullptr) {
+                return false;
+            }
+
+            if (N::isLeafArray(node)) {
+		printf("isLeafArray\n");
+                assert(0);
+		return false;
+                // auto la = N::getLeafArray(node);
+                // //                auto v = la->getVersion();
+                // auto ret = la->lookup(prefix);
+                // //                if (la->isObsolete(v) ||
+                // //                !la->readVersionOrRestart(v)) {
+                // //                    printf("read restart\n");
+                // //                    goto restart;
+                // //                }
+                // if (ret == nullptr && restart_cnt < 0) {
+                //     restart_cnt++;
+                //     goto restart;
+                // }
+                // return ret;
+            } else { /* 是中间节点 */
+                if (level == prefix->getKeyLen() + 1) {
+                    getAllLeaves(node, result, resultSize, resultsFound);
+                    return true;
+                }
+            } 
+        }
+        }
+        level++;
+    }
+}
+
 #ifdef LEAF_ARRAY
 Leaf *Tree::lookup(const Key *k) const {
     // enter a new epoch
@@ -797,10 +900,13 @@ bool Tree::checkKey(const Key *ret, const Key *k) const {
 }
 
 typename Tree::OperationResults Tree::insert(const Key *k) {
+    // printf("in Tree::Insert!\n");
     EpochGuard NewEpoch;
-
+    // printf("before restart\n");	    
 restart:
+    // printf("test!\n");
     bool needRestart = false;
+    // printf("test!\n");
     N *node = nullptr;
     N *nextNode = root;
     N *parentNode = nullptr;
@@ -811,10 +917,15 @@ restart:
         parentNode = node;
         parentKey = nodeKey;
         node = nextNode;
+	if (node == nullptr) printf("root is NULL!\n");
 #ifdef INSTANT_RESTART
-        node->check_generation();
+        
+	// printf("before node->getVersion!\n");
+node->check_generation();
 #endif
+	// printf("before node->getVersion!\n");
         auto v = node->getVersion();
+	// printf("after node->getversion!\n");
 
         uint32_t nextLevel = level;
 
@@ -844,7 +955,7 @@ restart:
 #endif
 
             // 2)  add node and (tid, *k) as children
-
+	    // printf("before allocLeaf!\n"); 
             auto *newLeaf = allocLeaf(k);
 
 #ifdef LEAF_ARRAY
@@ -854,6 +965,7 @@ restart:
             newNode->insert(k->fkey[nextLevel], N::setLeafArray(newLeafArray),
                             false);
 #else
+	    // printf("before newNode->insert!\n");
             newNode->insert(k->fkey[nextLevel], N::setLeaf(newLeaf), false);
 #endif
             // not persist
