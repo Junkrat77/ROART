@@ -102,10 +102,10 @@ TEST(TestCorrectness, PM_ART) {
         std::vector<Leaf *> result(scan_length);
         //        Leaf *result[scan_length];
         size_t result_count = 0;
-        auto re = art->lookupRange(start_key, end_key, toContinue,
-                                   result.data(), scan_length, result_count);
+        // auto re = art->lookupRange(start_key, end_key, toContinue,
+        //                            result.data(), scan_length, result_count);
         if (start_string < end_string == false) {
-            ASSERT_EQ(re, false);
+            // ASSERT_EQ(re, false);
             i--;
             continue;
         } else {

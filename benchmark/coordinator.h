@@ -238,8 +238,8 @@ template <typename K, typename V, int size> class Coordinator {
                 continueKey = nullptr;
                 size_t resultFound = 0;
                 //                std::cout<<"scan "<<(char *)(k->fkey)<<"\n";
-                art->lookupRange(k, maxkey, continueKey, scan_result,
-                                 conf.scan_length, resultFound);
+                // art->lookupRange(k, maxkey, continueKey, scan_result,
+                //                  conf.scan_length, resultFound);
                 //                std::cout<<"found"<<resultFound<<"\n";
                 //                for(int i = 0; i < resultFound; i++){
                 //                    memcpy(scan_value, scan_result[i]->value,

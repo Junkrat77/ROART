@@ -450,9 +450,15 @@ restart:
         }
     }
 }
+
+
+
 #ifdef LEAF_ARRAY
+// bool Tree::lookupRange(const Key *start, const Key *end, const Key *continueKey,
+//                        Leaf *result[], std::size_t resultSize,
+//                        std::size_t &resultsFound) const {
 bool Tree::lookupRange(const Key *start, const Key *end, const Key *continueKey,
-                       Leaf *result[], std::size_t resultSize,
+                       std::vector<KVPair>& result, std::size_t resultSize,
                        std::size_t &resultsFound) const {
     if (!N::key_key_lt(start, end)) {
         resultsFound = 0;
@@ -478,19 +484,23 @@ bool Tree::lookupRange(const Key *start, const Key *end, const Key *continueKey,
          &start, &end](N *node, int compare_level, bool compare_start,
                        bool compare_end) {
             if (N::isLeafArray(node)) {
-
                 auto la = N::getLeafArray(node);
 
                 auto leaves = la->getSortedLeaf(start, end, compare_level,
                                                 compare_start, compare_end);
 
                 for (auto leaf : leaves) {
-                    if (resultsFound == resultSize) {
+//                     if (resultsFound == resultSize) {
+//                         toContinue = N::getLeaf(node);
+//                         return;
+//                     }
+
+//                     result[resultsFound] = leaf;
+                    if (resultSize != 0 && resultsFound == resultSize ) {
                         toContinue = N::getLeaf(node);
                         return;
                     }
-
-                    result[resultsFound] = leaf;
+                    result.push_back({std::string(leaf->GetKey()), std::string(leaf->GetValue())});
                     resultsFound++;
                 }
             } else {
@@ -676,10 +686,9 @@ restart:
         return false;
     }
 }
-
 #else
 bool Tree::lookupRange(const Key *start, const Key *end, const Key *continueKey,
-                       Leaf *result[], std::size_t resultSize,
+                       std::vector<KVPair>& value, std::size_t resultSize,
                        std::size_t &resultsFound) const {
     if (!N::key_key_lt(start, end)) {
         resultsFound = 0;
@@ -705,12 +714,19 @@ bool Tree::lookupRange(const Key *start, const Key *end, const Key *continueKey,
                                      &toContinue, &copy, &scan_value,
                                      start](N *node) {
         if (N::isLeaf(node)) {
-            if (resultsFound == resultSize) {
+            // if (resultsFound == resultSize) {
+            //     toContinue = N::getLeaf(node);
+            //     return;
+            // }
+            // Leaf *leaf = N::getLeaf(node);
+            // result[resultsFound] = N::getLeaf(node);
+            if (resultSize != 0 && resultsFound == resultSize ) {
                 toContinue = N::getLeaf(node);
                 return;
             }
             Leaf *leaf = N::getLeaf(node);
-            result[resultsFound] = N::getLeaf(node);
+            // N::getLeaf(node)
+            result.push_back({std::string(leaf->GetKey()), std::string(leaf->GetValue())});
             resultsFound++;
         } else {
             std::tuple<uint8_t, N *> children[256];
