@@ -790,6 +790,7 @@ bool Tree::lookupRange(const Key *start, const Key *end, const Key *continueKey,
         [&copy, &end, &toContinue, &restart, &findEnd, this](N *node,
                                                              uint32_t level) {
             if (N::isLeaf(node)) {
+                /* end == NULL ||  */
                 if (N::leaf_key_lt(N::getLeaf(node), end, level)) {
                     copy(node);
                 }
@@ -797,8 +798,9 @@ bool Tree::lookupRange(const Key *start, const Key *end, const Key *continueKey,
             }
 
             PCCompareResults prefixResult;
+            // if (end != NULL) {
             prefixResult = checkPrefixCompare(node, end, level);
-
+            // } else prerixResult = PCCompareResults::Smaller;
             switch (prefixResult) {
             case PCCompareResults::Smaller:
                 copy(node);
@@ -843,6 +845,7 @@ restart:
         if (!(node = nextNode) || toContinue)
             break;
         PCEqualsResults prefixResult;
+        // prefixResult = checkPrefixEquals(node, level, start, end);
         prefixResult = checkPrefixEquals(node, level, start, end);
         switch (prefixResult) {
         case PCEqualsResults::SkippedLevel:
@@ -857,8 +860,12 @@ restart:
         case PCEqualsResults::BothMatch: {
             uint8_t startLevel =
                 (start->getKeyLen() > level) ? start->fkey[level] : (uint8_t)0;
+            // uint8_t endLevel = 255;
+            // if (end != NULL) {
             uint8_t endLevel =
                 (end->getKeyLen() > level) ? end->fkey[level] : (uint8_t)255;
+            // }
+            
             if (startLevel != endLevel) {
                 std::tuple<uint8_t, N *> children[256];
                 uint32_t childrenCount = 0;
@@ -1475,9 +1482,10 @@ typename Tree::PCEqualsResults Tree::checkPrefixEquals(const N *n,
             uint8_t curKey =
                 i >= maxStoredPrefixLength ? kt->fkey[level] : p.prefix[i];
 #endif
-            if (curKey > startLevel && curKey < endLevel) {
+            if (curKey > startLevel && curKey < endLevel) 
+            // if (curKey > startLevel && curKey < endLevel) {
                 return PCEqualsResults::Contained;
-            } else if (curKey < startLevel || curKey > endLevel) {
+            } else if (curKey < startLevel || curKey > endLevel) { /*  curKey > endLevel */
                 return PCEqualsResults::NoMatch;
             }
             ++level;

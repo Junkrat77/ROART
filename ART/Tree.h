@@ -137,19 +137,21 @@ class Tree {
     bool Scan(const std::string& key, std::vector<KVPair>& values) {
       PART_ns::Key k, maxkey;
       uint64_t value = 0;
-      k.Init((char*)key.c_str(), key.size(), (char*)&value, 8);
+		  uint64_t prefix_len = 19;
+      std::string prefix = key.substr(0, prefix_len);
+      k.Init((char*)prefix.c_str(), key.size(), (char*)&value, 8);
       /* need to modify */
-		  uint64_t prefix_len = 15;
-      std::string bigger = key.substr(0, prefix_len);
+      std::string bigger = prefix;
+      bigger[prefix_len-1] = (char*)bigger[prefix_len-1]+1;
       maxkey.Init((char*)bigger.c_str(), bigger.size(), (char*)&value, 8);
 
       size_t resultFound = 0;
       PART_ns::Key* continueKey = nullptr;
       this->lookupRange(&k, &maxkey, continueKey, values, 0, resultFound);
-      // printf("scan key      = %s, scan_length = %d\n", whole_key.c_str(), record_count);
-      // for (int i = 0; i < resultFound; i++) {
-        // printf("%s\n", scan_result[i]->GetKey());
-      // } 	
+      // printf("prefix = %s\n", key.substr(0, 18).c_str());
+      // for (std::vector<KVPair>::const_iterator iter = values.cbegin(); iter != values.cend(); iter++) {
+      //   printf("prefix scan: %s\n", (*iter).first.c_str());
+      // }
       return true;
     }
 
@@ -158,7 +160,7 @@ class Tree {
       if(range <= 0) return false;
       PART_ns::Key k, maxkey;
       uint64_t value = 0;
-      k.Init((char*)key.c_str(), key.size(), (char*)&value, 8);        maxkey.Init((char*)"z", 1, (char*)&value, 8);
+      k.Init((char*)key.c_str(), key.size(), (char*)&value, 8);  
       /* need to modify */
       maxkey.Init((char*)"z", 1, (char*)&value, 8);
 

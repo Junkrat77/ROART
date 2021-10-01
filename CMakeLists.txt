@@ -37,6 +37,7 @@ add_definitions(-DFIND_FIRST)
 #add_definitions(-DPMALLOC)
 #add_definitions(-DTXPMALLOC)
 add_definitions(-DTRANSACTIONAL)
+# link_libraries(pthread atomic boost_system boost_thread gtest)
 link_libraries(pthread atomic boost_system boost_thread)
 link_libraries(pmemobj)
 find_library(TbbLib tbb)
@@ -48,6 +49,7 @@ include_directories(./ART
         ./fast_fair
         ./lf-skiplist)
 include_directories(./gtest-1.8.1/fused-src)
+add_subdirectory(gtest-1.8.1/fused-src/gtest)
 
 aux_source_directory(ART DIR_ART_SRCS)
 aux_source_directory(benchmark DIR_BENCH_SRCS)
@@ -57,7 +59,6 @@ aux_source_directory(nvm_mgr   DIR_NVMMGR_SRCS)
 aux_source_directory(perf      DIR_PERF_SRCS)
 aux_source_directory(test      DIR_TEST_SRC)
 
-add_subdirectory(gtest-1.8.1/fused-src/gtest)
 add_library(Indexes ${DIR_ART_SRCS} ${DIR_BENCH_SRCS} ${DIR_FF_SRCS} ${DIR_NVMMGR_SRCS} ${DIR_SL_SRCS} )
 target_link_libraries(Indexes ${TbbLib})
 
