@@ -210,7 +210,6 @@ restart:
             }
 
             if (N::isLeafArray(node)) {
-		printf("isLeafArray\n");
                 assert(0);
 		return false;
                 // auto la = N::getLeafArray(node);
@@ -923,13 +922,9 @@ bool Tree::checkKey(const Key *ret, const Key *k) const {
 }
 
 typename Tree::OperationResults Tree::insert(const Key *k) {
-    // printf("in Tree::Insert!\n");
-    EpochGuard NewEpoch;
-    // printf("before restart\n");	    
+    EpochGuard NewEpoch;   
 restart:
-    // printf("test!\n");
     bool needRestart = false;
-    // printf("test!\n");
     N *node = nullptr;
     N *nextNode = root;
     N *parentNode = nullptr;
@@ -943,12 +938,9 @@ restart:
 	if (node == nullptr) printf("root is NULL!\n");
 #ifdef INSTANT_RESTART
         
-	// printf("before node->getVersion!\n");
 node->check_generation();
 #endif
-	// printf("before node->getVersion!\n");
         auto v = node->getVersion();
-	// printf("after node->getversion!\n");
 
         uint32_t nextLevel = level;
 
@@ -978,7 +970,6 @@ node->check_generation();
 #endif
 
             // 2)  add node and (tid, *k) as children
-	    // printf("before allocLeaf!\n"); 
             auto *newLeaf = allocLeaf(k);
 
 #ifdef LEAF_ARRAY
@@ -988,7 +979,6 @@ node->check_generation();
             newNode->insert(k->fkey[nextLevel], N::setLeafArray(newLeafArray),
                             false);
 #else
-	    // printf("before newNode->insert!\n");
             newNode->insert(k->fkey[nextLevel], N::setLeaf(newLeaf), false);
 #endif
             // not persist
