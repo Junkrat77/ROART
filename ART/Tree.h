@@ -142,7 +142,7 @@ class Tree {
       k.Init((char*)prefix.c_str(), key.size(), (char*)&value, 8);
       /* need to modify */
       std::string bigger = prefix;
-      bigger[prefix_len-1] = (char*)bigger[prefix_len-1]+1;
+      bigger[prefix_len-1] = (char)bigger[prefix_len-1]+1;
       maxkey.Init((char*)bigger.c_str(), bigger.size(), (char*)&value, 8);
 
       size_t resultFound = 0;
